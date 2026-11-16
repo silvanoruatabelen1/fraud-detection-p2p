@@ -31,6 +31,8 @@ app = [
 ]
 replayer = [
   "requests>=2.32",
+  "pandas>=2.2",
+  "pyarrow>=17",
 ]
 analysis = [
   "jupyter>=1.1",

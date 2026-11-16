@@ -192,8 +192,11 @@ class WhatIf:
         cand = self.te["score"].to_numpy() >= o["threshold"]
         served = serve_daily_queue(cand, self.te_days, costs.daily_capacity)
         e = evaluate_alerts(self.te["y"].to_numpy(), served, self.te["amount"].to_numpy(), 16, costs)
-        curve = o["curve"]
-        sample = curve.iloc[np.linspace(0, len(curve) - 1, min(400, len(curve))).astype(int)]
+        # Muestra sobre una grilla de umbrales (no de posiciones): para cada u, el estado de alertar si puntaje >= u
+        curve = o["curve"].sort_values("threshold").reset_index(drop=True)
+        grid = np.linspace(max(curve["threshold"].min(), -15.0), min(curve["threshold"].max(), 15.0), 500)
+        idx = np.minimum(np.searchsorted(curve["threshold"].to_numpy(), grid, side="left"), len(curve) - 1)
+        sample = curve.iloc[idx].assign(threshold=grid)
         return {
             "threshold": o["threshold"],
             "band": [o["band_min"], o["band_max"]],

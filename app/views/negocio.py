@@ -88,7 +88,9 @@ fig.add_scatter(
     x=inf["threshold"], y=inf["savings"] / 1e6, mode="markers", marker=dict(color=FRAUD, size=4), name="Supera el cupo"
 )
 fig.add_vrect(x0=w["band"][0], x1=w["band"][1], fillcolor=OK, opacity=0.08, line_width=0)
-fig.add_vline(x=w["threshold"], line_color=ACCENT, line_dash="dash", annotation_text="umbral elegido")
+fig.add_vline(
+    x=w["threshold"], line_color=ACCENT, line_dash="dash", line_width=2, layer="above", annotation_text="umbral elegido"
+)
 top = curve["savings"].max() / 1e6
 fig.update_layout(
     height=330,

@@ -24,3 +24,6 @@ data/processed/
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Salidas que generan los notebooks al reejecutarse
+reports/models/
