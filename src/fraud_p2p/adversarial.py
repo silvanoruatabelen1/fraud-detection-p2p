@@ -8,8 +8,17 @@ import pandas as pd
 from .features import build_features
 
 
-def features_with(gold: pd.DataFrame, idx: np.ndarray, *, amount=None, balance=None, is_transfer=None,
-                  hour=None, ops_prev=None, amount_prev=None) -> pd.DataFrame:
+def features_with(
+    gold: pd.DataFrame,
+    idx: np.ndarray,
+    *,
+    amount=None,
+    balance=None,
+    is_transfer=None,
+    hour=None,
+    ops_prev=None,
+    amount_prev=None,
+) -> pd.DataFrame:
     """Recalcula los atributos de las filas `idx` reemplazando las variables que controla el atacante."""
     g = gold.iloc[idx]
     return build_features(
@@ -29,8 +38,9 @@ def partial_withdrawal(gold: pd.DataFrame, idx: np.ndarray, fraction: float) -> 
     return np.where(balance > 0, np.round(fraction * balance, 2), amount)
 
 
-def augment_partial_withdrawals(gold: pd.DataFrame, mask: np.ndarray, copies: int,
-                                rng: np.random.Generator) -> tuple[pd.DataFrame, np.ndarray, np.ndarray]:
+def augment_partial_withdrawals(
+    gold: pd.DataFrame, mask: np.ndarray, copies: int, rng: np.random.Generator
+) -> tuple[pd.DataFrame, np.ndarray, np.ndarray]:
     """Copias sintéticas de los fraudes con saldo que retiran entre el 50% y el 99% del saldo.
 
     Devuelve atributos, montos y steps de las copias. Las copias son versiones alternativas de los

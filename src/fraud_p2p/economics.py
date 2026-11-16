@@ -70,8 +70,13 @@ def optimal_threshold(y, score, amount, days, costs: CostConfig = CostConfig(), 
     feasible = c[c["feasible"]]
     if feasible.empty or feasible["savings"].max() <= 0:  # ningún umbral factible ahorra: no se alerta
         u = float(np.nextafter(score.max(), np.inf))
-        return {"threshold": u, "band_min": u, "band_max": u,
-                **evaluate_alerts(y, score >= u, amount, n_days, costs), "curve": c}
+        return {
+            "threshold": u,
+            "band_min": u,
+            "band_max": u,
+            **evaluate_alerts(y, score >= u, amount, n_days, costs),
+            "curve": c,
+        }
     best = feasible["savings"].max()
     band = feasible[feasible["savings"] >= costs.tolerance * best]
     lo, hi = float(band["threshold"].min()), float(band["threshold"].max())
@@ -79,8 +84,13 @@ def optimal_threshold(y, score, amount, days, costs: CostConfig = CostConfig(), 
     effective = c.loc[c["threshold"] >= u].iloc[-1]
     if not effective["feasible"] or effective["savings"] < costs.tolerance * best:
         u = float(band.loc[(band["threshold"] - u).abs().idxmin(), "threshold"])  # el punto medio cayó en un hueco
-    return {"threshold": u, "band_min": lo, "band_max": hi,
-            **evaluate_alerts(y, score >= u, amount, n_days, costs), "curve": c}
+    return {
+        "threshold": u,
+        "band_min": lo,
+        "band_max": hi,
+        **evaluate_alerts(y, score >= u, amount, n_days, costs),
+        "curve": c,
+    }
 
 
 def serve_daily_queue(candidates, days, capacity: int) -> np.ndarray:

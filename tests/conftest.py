@@ -18,14 +18,14 @@ def scorer():
 
 @pytest.fixture(scope="session")
 def client(tmp_path_factory):
-    """API real contra una base SQLite temporal, con el historial de demostración cargado."""
+    """API real contra una base temporal (SQLite, o Postgres con TEST_DATABASE_URL) con el historial de demo."""
     import os
 
-    db = tmp_path_factory.mktemp("db") / "test.db"
-    os.environ["DATABASE_URL"] = f"sqlite:///{db}"
+    url = os.getenv("TEST_DATABASE_URL") or f"sqlite:///{tmp_path_factory.mktemp('db') / 'test.db'}"
     from api import settings as s
 
-    s.settings.database_url = f"sqlite:///{db}"
+    s.settings.database_url = url
+    s.settings.seed_on_startup = True
     from fastapi.testclient import TestClient
 
     from api.main import app

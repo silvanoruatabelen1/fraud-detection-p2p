@@ -15,22 +15,35 @@ API_URL = os.getenv("API_URL", "http://localhost:8000").rstrip("/")
 FRAUD, LEGIT, NEUTRAL, ACCENT, OK, MUTED = "#B42318", "#1B365D", "#5C768D", "#D97706", "#0F766E", "#98A2B3"
 TIER_COLOR = {"rojo": FRAUD, "ambar": ACCENT, "verde": OK}
 LABELS = {
-    "es_transfer": "Es transferencia", "log_monto": "Monto", "log_saldo_orig": "Saldo de origen",
-    "emisor_sin_saldo": "Origen sin saldo", "monto_excede_saldo": "Pide más que el saldo",
-    "log_ratio_monto_saldo": "Relación monto/saldo", "marca_vaciamiento": "Vacía la cuenta al centavo",
-    "tramo_10m_con_saldo": "Tramo de 10 M con saldo", "hora_sen": "Hora (seno)", "hora_cos": "Hora (coseno)",
-    "dest_ops_previas_log": "Operaciones previas del destino", "dest_monto_previo_log": "Monto previo del destino",
+    "es_transfer": "Es transferencia",
+    "log_monto": "Monto",
+    "log_saldo_orig": "Saldo de origen",
+    "emisor_sin_saldo": "Origen sin saldo",
+    "monto_excede_saldo": "Pide más que el saldo",
+    "log_ratio_monto_saldo": "Relación monto/saldo",
+    "marca_vaciamiento": "Vacía la cuenta al centavo",
+    "tramo_10m_con_saldo": "Tramo de 10 M con saldo",
+    "hora_sen": "Hora (seno)",
+    "hora_cos": "Hora (coseno)",
+    "dest_ops_previas_log": "Operaciones previas del destino",
+    "dest_monto_previo_log": "Monto previo del destino",
 }
 TIER_LABEL = {"rojo": "Rojo · retener", "ambar": "Ámbar · verificar", "verde": "Verde · aprobar"}
 
-pio.templates["fd"] = go.layout.Template(layout=go.Layout(
-    font=dict(family="Inter, system-ui, sans-serif", size=13, color="#1F2937"),
-    plot_bgcolor="white", paper_bgcolor="rgba(0,0,0,0)", separators=",.",
-    colorway=[LEGIT, FRAUD, ACCENT, OK, NEUTRAL, "#7A5AF8"],
-    xaxis=dict(showgrid=False, linecolor="#D0D5DD"), yaxis=dict(gridcolor="#EAECF0", zeroline=False),
-    margin=dict(l=10, r=10, t=40, b=10), hoverlabel=dict(bgcolor="white"),
-    legend=dict(orientation="h", y=-0.18, x=0),
-))
+pio.templates["fd"] = go.layout.Template(
+    layout=go.Layout(
+        font=dict(family="Inter, system-ui, sans-serif", size=13, color="#1F2937"),
+        plot_bgcolor="white",
+        paper_bgcolor="rgba(0,0,0,0)",
+        separators=",.",
+        colorway=[LEGIT, FRAUD, ACCENT, OK, NEUTRAL, "#7A5AF8"],
+        xaxis=dict(showgrid=False, linecolor="#D0D5DD"),
+        yaxis=dict(gridcolor="#EAECF0", zeroline=False),
+        margin=dict(l=10, r=10, t=40, b=10),
+        hoverlabel=dict(bgcolor="white"),
+        legend=dict(orientation="h", y=-0.18, x=0),
+    )
+)
 pio.templates.default = "simple_white+fd"
 
 
@@ -112,8 +125,11 @@ def setup(title: str, subtitle: str = "") -> None:
 
 def kpi(col, label: str, value: str, sub: str = "", color: str | None = None) -> None:
     style = f"border-top:3px solid {color};" if color else ""
-    col.markdown(f'<div class="fd-kpi" style="{style}"><div class="lbl">{label}</div>'
-                 f'<div class="val">{value}</div><div class="sub">{sub}</div></div>', unsafe_allow_html=True)
+    col.markdown(
+        f'<div class="fd-kpi" style="{style}"><div class="lbl">{label}</div>'
+        f'<div class="val">{value}</div><div class="sub">{sub}</div></div>',
+        unsafe_allow_html=True,
+    )
 
 
 def pill(tier: str) -> str:
@@ -122,16 +138,26 @@ def pill(tier: str) -> str:
 
 def contributions_chart(contrib: dict[str, float], labels: dict[str, str], height: int = 360) -> go.Figure:
     items = sorted(contrib.items(), key=lambda kv: kv[1])
-    fig = go.Figure(go.Bar(
-        x=[v for _, v in items], y=[labels.get(k, k) for k, _ in items], orientation="h",
-        marker_color=[FRAUD if v > 0 else LEGIT for _, v in items],
-        hovertemplate="%{y}: %{x:.2f}<extra></extra>"))
-    fig.update_layout(height=height, title="Aporte de cada atributo al puntaje (log-odds)",
-                      xaxis_title="← hacia legítima · hacia fraude →")
+    fig = go.Figure(
+        go.Bar(
+            x=[v for _, v in items],
+            y=[labels.get(k, k) for k, _ in items],
+            orientation="h",
+            marker_color=[FRAUD if v > 0 else LEGIT for _, v in items],
+            hovertemplate="%{y}: %{x:.2f}<extra></extra>",
+        )
+    )
+    fig.update_layout(
+        height=height,
+        title="Aporte de cada atributo al puntaje (log-odds)",
+        xaxis_title="← hacia legítima · hacia fraude →",
+    )
     return fig
 
 
 def demo_notice() -> None:
-    st.info("Datos de demostración: operaciones reales de PaySim de los días 16 a 18 (período de prueba). Están todos los "
-            "fraudes y el 5% de las legítimas; los indicadores se reponderan por el peso de muestreo para estimar volúmenes reales.",
-            icon="ℹ️")
+    st.info(
+        "Datos de demostración: operaciones reales de PaySim de los días 16 a 18 (período de prueba). Están todos los "
+        "fraudes y el 5% de las legítimas; los indicadores se reponderan por el peso de muestreo para estimar volúmenes reales.",
+        icon="ℹ️",
+    )

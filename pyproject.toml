@@ -15,7 +15,7 @@ dependencies = [
   "joblib>=1.4",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 api = [
   "fastapi>=0.115",
   "uvicorn[standard]>=0.30",

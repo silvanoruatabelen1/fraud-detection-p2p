@@ -22,10 +22,15 @@ def history_for(conn: sa.Connection, dests: Sequence[str], step: int) -> dict[st
     """Operaciones y monto recibidos por cada destino en [step - 168, step). Excluye la hora en curso."""
     if not dests:
         return {}
-    q = (sa.select(transactions.c.name_dest, sa.func.count(), sa.func.coalesce(sa.func.sum(transactions.c.amount), 0.0))
-         .where(transactions.c.name_dest.in_(list(set(dests))),
-                transactions.c.step >= step - HISTORY_WINDOW_H, transactions.c.step < step)
-         .group_by(transactions.c.name_dest))
+    q = (
+        sa.select(transactions.c.name_dest, sa.func.count(), sa.func.coalesce(sa.func.sum(transactions.c.amount), 0.0))
+        .where(
+            transactions.c.name_dest.in_(list(set(dests))),
+            transactions.c.step >= step - HISTORY_WINDOW_H,
+            transactions.c.step < step,
+        )
+        .group_by(transactions.c.name_dest)
+    )
     return {d: (int(n), float(s)) for d, n, s in conn.execute(q)}
 
 
@@ -45,20 +50,45 @@ class ScoringService:
         with self.engine.begin() as conn:
             ops, amt = history_for(conn, [tx.name_dest], tx.step).get(tx.name_dest, (0, 0.0))
             d = self.scorer.score_transaction(
-                Transaction(step=tx.step, type=tx.type, amount=tx.amount, old_balance_orig=tx.old_balance_orig,
-                            name_dest=tx.name_dest, name_orig=tx.name_orig), ops, amt)
+                Transaction(
+                    step=tx.step,
+                    type=tx.type,
+                    amount=tx.amount,
+                    old_balance_orig=tx.old_balance_orig,
+                    name_dest=tx.name_dest,
+                    name_orig=tx.name_orig,
+                ),
+                ops,
+                amt,
+            )
             latency = (time.perf_counter() - t0) * 1000
             tx_id = None
             if persist:
-                tx_id = conn.execute(transactions.insert().returning(transactions.c.id), [self._tx_row(tx, source)]).scalar_one()
-                conn.execute(decisions.insert(), [{
-                    "tx_id": tx_id, "model_version": self.scorer.model_version, "in_scope": d.in_scope, "tier": d.tier,
-                    "score": d.score, "probability": d.probability, "dest_ops_prev": ops,
-                    "challenger_alert": d.shadow.get("challenger", {}).get("alert", False),
-                    "challenger_adv_alert": d.shadow.get("challenger_adv", {}).get("alert", False),
-                    "sentinel_alert": d.shadow.get("sentinel", {}).get("alert", False),
-                    "tactic_signal": d.tactic_change_signal, "reasons": " · ".join(d.reasons),
-                    "features": d.features or None, "contributions": d.contributions or None, "latency_ms": latency}])
+                tx_id = conn.execute(
+                    transactions.insert().returning(transactions.c.id), [self._tx_row(tx, source)]
+                ).scalar_one()
+                conn.execute(
+                    decisions.insert(),
+                    [
+                        {
+                            "tx_id": tx_id,
+                            "model_version": self.scorer.model_version,
+                            "in_scope": d.in_scope,
+                            "tier": d.tier,
+                            "score": d.score,
+                            "probability": d.probability,
+                            "dest_ops_prev": ops,
+                            "challenger_alert": d.shadow.get("challenger", {}).get("alert", False),
+                            "challenger_adv_alert": d.shadow.get("challenger_adv", {}).get("alert", False),
+                            "sentinel_alert": d.shadow.get("sentinel", {}).get("alert", False),
+                            "tactic_signal": d.tactic_change_signal,
+                            "reasons": " · ".join(d.reasons),
+                            "features": d.features or None,
+                            "contributions": d.contributions or None,
+                            "latency_ms": latency,
+                        }
+                    ],
+                )
         return {"tx_id": tx_id, "model_version": self.scorer.model_version, **d.to_dict(), "latency_ms": latency}
 
     def score_batch(self, txs: list[TransactionIn], source: str) -> dict:
@@ -71,16 +101,36 @@ class ScoringService:
                 hist = history_for(conn, g["name_dest"].tolist(), int(step))
                 ops = np.array([hist.get(d, (0, 0.0))[0] for d in g["name_dest"]])
                 amt = np.array([hist.get(d, (0, 0.0))[1] for d in g["name_dest"]])
-                ids = conn.execute(transactions.insert().returning(transactions.c.id, sort_by_parameter_order=True),
-                                   [self._tx_row(TransactionIn(**r), source) for r in g.to_dict("records")]).scalars().all()
+                ids = (
+                    conn.execute(
+                        transactions.insert().returning(transactions.c.id, sort_by_parameter_order=True),
+                        [self._tx_row(TransactionIn(**r), source) for r in g.to_dict("records")],
+                    )
+                    .scalars()
+                    .all()
+                )
                 in_scope = g["type"].isin(RISK_TYPES).to_numpy()
-                rows = [{"tx_id": i, "model_version": self.scorer.model_version, "in_scope": False, "tier": TIER_GREEN,
-                         "dest_ops_prev": int(o), "reasons": "Tipo de operación sin fraude observado"} for i, o in zip(ids, ops, strict=True)]
+                rows = [
+                    {
+                        "tx_id": i,
+                        "model_version": self.scorer.model_version,
+                        "in_scope": False,
+                        "tier": TIER_GREEN,
+                        "dest_ops_prev": int(o),
+                        "reasons": "Tipo de operación sin fraude observado",
+                    }
+                    for i, o in zip(ids, ops, strict=True)
+                ]
                 if in_scope.any():
                     gi = g[in_scope]
-                    X = build_features(gi["amount"].to_numpy(), gi["old_balance_orig"].to_numpy(),
-                                       (gi["type"] == "TRANSFER").to_numpy(), (gi["step"] % 24).to_numpy(),
-                                       ops[in_scope], amt[in_scope])
+                    X = build_features(
+                        gi["amount"].to_numpy(),
+                        gi["old_balance_orig"].to_numpy(),
+                        (gi["type"] == "TRANSFER").to_numpy(),
+                        (gi["step"] % 24).to_numpy(),
+                        ops[in_scope],
+                        amt[in_scope],
+                    )
                     s = self.scorer.score_batch(X)
                     contrib = self.scorer.contributions(X)
                     lat = (time.perf_counter() - t0) * 1000 / len(g)
@@ -90,21 +140,40 @@ class ScoringService:
                         sh = {n: bool(s[n][j] >= u) for n, u in self.scorer.shadow_thresholds.items()}
                         red += tier == TIER_RED
                         amber += tier == TIER_AMBER
-                        rows[k].update({
-                            "in_scope": True, "tier": tier, "score": sc, "probability": float(1 / (1 + np.exp(-sc))),
-                            "challenger_alert": sh["challenger"], "challenger_adv_alert": sh["challenger_adv"],
-                            "sentinel_alert": sh["sentinel"], "tactic_signal": tier != TIER_RED and any(sh.values()),
-                            "reasons": _reasons(contrib[j]), "latency_ms": lat,
-                            "features": {f: float(X.iloc[j][f]) for f in FEATURES},
-                            "contributions": {f: float(contrib[j][i]) for i, f in enumerate(FEATURES)}})
+                        rows[k].update(
+                            {
+                                "in_scope": True,
+                                "tier": tier,
+                                "score": sc,
+                                "probability": float(1 / (1 + np.exp(-sc))),
+                                "challenger_alert": sh["challenger"],
+                                "challenger_adv_alert": sh["challenger_adv"],
+                                "sentinel_alert": sh["sentinel"],
+                                "tactic_signal": tier != TIER_RED and any(sh.values()),
+                                "reasons": _reasons(contrib[j]),
+                                "latency_ms": lat,
+                                "features": {f: float(X.iloc[j][f]) for f in FEATURES},
+                                "contributions": {f: float(contrib[j][i]) for i, f in enumerate(FEATURES)},
+                            }
+                        )
                 conn.execute(decisions.insert(), rows)
         return {"processed": len(df), "red": int(red), "amber": int(amber), "last_step": int(df["step"].max())}
 
     @staticmethod
     def _tx_row(tx: TransactionIn, source: str) -> dict:
-        return {"step": tx.step, "day": int(day_of_step(tx.step)), "hour": tx.step % 24, "type": tx.type,
-                "amount": tx.amount, "name_orig": tx.name_orig, "old_balance_orig": tx.old_balance_orig,
-                "name_dest": tx.name_dest, "source": source, "label": tx.label, "sample_weight": tx.sample_weight}
+        return {
+            "step": tx.step,
+            "day": int(day_of_step(tx.step)),
+            "hour": tx.step % 24,
+            "type": tx.type,
+            "amount": tx.amount,
+            "name_orig": tx.name_orig,
+            "old_balance_orig": tx.old_balance_orig,
+            "name_dest": tx.name_dest,
+            "source": source,
+            "label": tx.label,
+            "sample_weight": tx.sample_weight,
+        }
 
 
 ACTIONS_BY_TIER = ACTIONS

@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Lint y tests (SQLite y Postgres)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: fraud
+          POSTGRES_PASSWORD: fraud
+          POSTGRES_DB: fraud
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U fraud" --health-interval 5s --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv python install 3.13
+      - run: uv sync --frozen --group api --group app --group replayer --group dev
+      - name: Lint
+        run: |
+          uv run ruff check .
+          uv run ruff format --check src api app replayer tests
+      - name: Tests con SQLite
+        run: uv run pytest --cov=fraud_p2p --cov=api --cov-report=term-missing
+      - name: Tests con Postgres
+        env:
+          TEST_DATABASE_URL: postgresql+psycopg://fraud:fraud@localhost:5432/fraud
+        run: uv run pytest tests/test_api.py
+
+  docker:
+    name: Imágenes y prueba de humo con docker compose
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Construir y levantar la plataforma
+        run: docker compose up --build -d db api app
+      - name: Esperar a que la API esté sana
+        run: |
+          for i in $(seq 1 40); do
+            curl -fsS http://localhost:8000/health && exit 0
+            sleep 3
+          done
+          docker compose logs api; exit 1
+      - name: Puntuar una operación y reproducir una hora de tráfico
+        run: |
+          curl -fsS -X POST "http://localhost:8000/v1/score?persist=false" -H "Content-Type: application/json" \
+            -d '{"step":400,"type":"TRANSFER","amount":181000,"old_balance_orig":181000,"name_dest":"C1"}' | tee /tmp/r.json
+          grep -q '"tier":"rojo"' /tmp/r.json
+          docker compose run --rm replayer --api http://api:8000 --seconds-per-hour 0
+          curl -fsS http://localhost:8000/v1/kpis/summary | grep -q '"detected"'
+      - name: Aplicación web sana
+        run: |
+          for i in $(seq 1 30); do curl -fsS http://localhost:8501/_stcore/health && exit 0; sleep 2; done
+          docker compose logs app; exit 1
+      - if: always()
+        run: docker compose down -v

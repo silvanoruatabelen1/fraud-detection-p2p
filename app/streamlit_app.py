@@ -1,6 +1,6 @@
 """Plataforma antifraude PagoDirecto: simulador, operaciones, paneles de negocio y monitoreo.
 
-    streamlit run app/streamlit_app.py
+streamlit run app/streamlit_app.py
 """
 
 import sys

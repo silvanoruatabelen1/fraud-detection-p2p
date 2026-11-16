@@ -50,14 +50,30 @@ def main(argv: list[str] | None = None) -> None:
     df = df[df["step"] > done]
     log.info("Reproduciendo %s operaciones (%s horas) desde el step %s", f"{len(df):,}", df["step"].nunique(), done + 1)
     for step, g in df.groupby("step", sort=True):
-        rows = [{"step": int(r.step), "type": r.type, "amount": float(r.amount), "old_balance_orig": float(r.oldbalanceOrg),
-                 "name_dest": r.nameDest, "name_orig": r.nameOrig, "label": int(r.isFraud),
-                 "sample_weight": float(r.sample_weight)} for r in g.itertuples()]
+        rows = [
+            {
+                "step": int(r.step),
+                "type": r.type,
+                "amount": float(r.amount),
+                "old_balance_orig": float(r.oldbalanceOrg),
+                "name_dest": r.nameDest,
+                "name_orig": r.nameOrig,
+                "label": int(r.isFraud),
+                "sample_weight": float(r.sample_weight),
+            }
+            for r in g.itertuples()
+        ]
         r = requests.post(f"{a.api}/v1/score/batch", json={"transactions": rows, "source": "replay"}, timeout=120)
         r.raise_for_status()
         out = r.json()
-        log.info("Día %d, %02d h: %d operaciones, %d rojas, %d ámbar", (step - 1) // 24 + 1, step % 24,
-                 out["processed"], out["red"], out["amber"])
+        log.info(
+            "Día %d, %02d h: %d operaciones, %d rojas, %d ámbar",
+            (step - 1) // 24 + 1,
+            step % 24,
+            out["processed"],
+            out["red"],
+            out["amber"],
+        )
         time.sleep(a.seconds_per_hour)
     log.info("Reproducción completa")
 

@@ -13,8 +13,14 @@ from fraud_p2p.features import (
 
 
 def _one(amount, balance, is_transfer=True, hour=3, ops=0, amt=0.0):
-    return build_features(np.array([amount]), np.array([balance]), np.array([is_transfer]),
-                          np.array([hour]), np.array([ops]), np.array([amt])).iloc[0]
+    return build_features(
+        np.array([amount]),
+        np.array([balance]),
+        np.array([is_transfer]),
+        np.array([hour]),
+        np.array([ops]),
+        np.array([amt]),
+    ).iloc[0]
 
 
 def test_columns_and_order():
@@ -52,12 +58,14 @@ def test_single_transaction_matches_batch():
 
 def _synthetic(n=3000, seed=0):
     rng = np.random.default_rng(seed)
-    df = pd.DataFrame({
-        "step": np.sort(rng.integers(1, 400, n)),
-        "type": rng.choice(["TRANSFER", "CASH_OUT", "PAYMENT", "CASH_IN"], n),
-        "amount": rng.uniform(1, 1e5, n).round(2),
-        "nameDest": rng.choice([f"C{i}" for i in range(60)], n),
-    })
+    df = pd.DataFrame(
+        {
+            "step": np.sort(rng.integers(1, 400, n)),
+            "type": rng.choice(["TRANSFER", "CASH_OUT", "PAYMENT", "CASH_IN"], n),
+            "amount": rng.uniform(1, 1e5, n).round(2),
+            "nameDest": rng.choice([f"C{i}" for i in range(60)], n),
+        }
+    )
     df["type"] = df["type"].astype("category")
     return df
 

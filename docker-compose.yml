@@ -1,0 +1,53 @@
+# Plataforma completa: docker compose up --build
+# API: http://localhost:8000/docs · Aplicación: http://localhost:8501
+name: fraud-detection
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-fraud}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-fraud}
+      POSTGRES_DB: ${POSTGRES_DB:-fraud}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build: { context: ., dockerfile: docker/api.Dockerfile }
+    image: fraud-detection-api:latest
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-fraud}:${POSTGRES_PASSWORD:-fraud}@db:5432/${POSTGRES_DB:-fraud}
+      WEB_CONCURRENCY: ${WEB_CONCURRENCY:-2}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      db: { condition: service_healthy }
+    restart: unless-stopped
+
+  replayer:
+    build: { context: ., dockerfile: docker/replayer.Dockerfile }
+    image: fraud-detection-replayer:latest
+    command: ["--api", "http://api:8000", "--seconds-per-hour", "${REPLAY_SECONDS_PER_HOUR:-1}"]
+    depends_on:
+      api: { condition: service_healthy }
+    restart: "no"
+
+  app:
+    build: { context: ., dockerfile: docker/app.Dockerfile }
+    image: fraud-detection-app:latest
+    environment:
+      API_URL: http://api:8000
+    ports:
+      - "${APP_PORT:-8501}:8501"
+    depends_on:
+      api: { condition: service_healthy }
+    restart: unless-stopped
+
+volumes:
+  pgdata:

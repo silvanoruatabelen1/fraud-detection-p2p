@@ -41,18 +41,26 @@ def psi(expected: list[float], actual: list[float]) -> float:
     return float(np.sum((a - e) * np.log(a / e)))
 
 
-def psi_report(reference: dict, X: pd.DataFrame, scores: np.ndarray | None = None,
-               weights: np.ndarray | None = None) -> pd.DataFrame:
+def psi_report(
+    reference: dict, X: pd.DataFrame, scores: np.ndarray | None = None, weights: np.ndarray | None = None
+) -> pd.DataFrame:
     """PSI de cada atributo. `weights` repondera muestras estratificadas (p. ej., legítimas submuestreadas)."""
     rows = []
     for col in X.columns:
         if col not in reference:
             continue
         r = reference[col]
-        rows.append({"variable": col, "psi": psi(r["proportions"], _proportions(X[col].to_numpy(), r["edges"], weights))})
+        rows.append(
+            {"variable": col, "psi": psi(r["proportions"], _proportions(X[col].to_numpy(), r["edges"], weights))}
+        )
     if scores is not None and "__score__" in reference:
         r = reference["__score__"]
-        rows.append({"variable": "__score__", "psi": psi(r["proportions"], _proportions(np.asarray(scores), r["edges"], weights))})
+        rows.append(
+            {
+                "variable": "__score__",
+                "psi": psi(r["proportions"], _proportions(np.asarray(scores), r["edges"], weights)),
+            }
+        )
     out = pd.DataFrame(rows)
     out["estado"] = pd.cut(out["psi"], [-np.inf, 0.10, 0.25, np.inf], labels=["estable", "moderado", "relevante"])
     return out

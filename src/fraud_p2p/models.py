@@ -20,17 +20,27 @@ def make_champion() -> Pipeline:
     """Regresión logística regularizada: explicable, calibrable y de latencia mínima."""
     return make_pipeline(
         StandardScaler(),
-        LogisticRegression(C=CHAMPION_PARAMS["C"], class_weight=CHAMPION_PARAMS["class_weight"],
-                           solver="newton-cholesky", max_iter=1000),
+        LogisticRegression(
+            C=CHAMPION_PARAMS["C"],
+            class_weight=CHAMPION_PARAMS["class_weight"],
+            solver="newton-cholesky",
+            max_iter=1000,
+        ),
     )
 
 
 def make_challenger() -> xgb.XGBClassifier:
     """XGBoost poco profundo: el mejor ensamble, corre en sombra."""
     return xgb.XGBClassifier(
-        n_estimators=CHALLENGER_PARAMS["n_estimators"], max_depth=CHALLENGER_PARAMS["max_depth"],
-        learning_rate=CHALLENGER_PARAMS["learning_rate"], subsample=0.8, colsample_bytree=0.8,
-        tree_method="hist", n_jobs=-1, random_state=SEED, eval_metric="aucpr",
+        n_estimators=CHALLENGER_PARAMS["n_estimators"],
+        max_depth=CHALLENGER_PARAMS["max_depth"],
+        learning_rate=CHALLENGER_PARAMS["learning_rate"],
+        subsample=0.8,
+        colsample_bytree=0.8,
+        tree_method="hist",
+        n_jobs=-1,
+        random_state=SEED,
+        eval_metric="aucpr",
     )
 
 

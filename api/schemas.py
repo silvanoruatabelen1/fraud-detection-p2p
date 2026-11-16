@@ -14,12 +14,25 @@ class TransactionIn(BaseModel):
     old_balance_orig: float = Field(..., ge=0, description="Saldo de la cuenta de origen antes de operar")
     name_dest: str = Field(..., min_length=1, max_length=20)
     name_orig: str = Field("", max_length=20)
-    label: int | None = Field(None, ge=0, le=1, description="Solo para reproducir datos etiquetados; el modelo no la usa")
+    label: int | None = Field(
+        None, ge=0, le=1, description="Solo para reproducir datos etiquetados; el modelo no la usa"
+    )
     sample_weight: float = Field(1.0, gt=0)
 
-    model_config = {"json_schema_extra": {"examples": [{
-        "step": 400, "type": "TRANSFER", "amount": 181000.0, "old_balance_orig": 181000.0,
-        "name_dest": "C553264065", "name_orig": "C1305486145"}]}}
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "step": 400,
+                    "type": "TRANSFER",
+                    "amount": 181000.0,
+                    "old_balance_orig": 181000.0,
+                    "name_dest": "C553264065",
+                    "name_orig": "C1305486145",
+                }
+            ]
+        }
+    }
 
 
 class ShadowOut(BaseModel):

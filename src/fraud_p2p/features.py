@@ -80,11 +80,7 @@ def build_gold(curated: pd.DataFrame) -> pd.DataFrame:
     """Capa oro: atributos, etiqueta y metadatos del subespacio de riesgo, en orden cronológico."""
     hist = destination_history(curated)
     cols = ["step", "type", "amount", "oldbalanceOrg", "nameOrig", "nameDest", "isFraud", "isFlaggedFraud"]
-    risk = (
-        curated.loc[risk_mask(curated), cols]
-        .merge(hist, on=["nameDest", "step"], how="left")
-        .reset_index(drop=True)
-    )
+    risk = curated.loc[risk_mask(curated), cols].merge(hist, on=["nameDest", "step"], how="left").reset_index(drop=True)
     risk[["dest_ops_prev", "dest_amount_prev"]] = risk[["dest_ops_prev", "dest_amount_prev"]].fillna(0)
     X = build_features(
         risk["amount"].to_numpy(),
@@ -94,8 +90,20 @@ def build_gold(curated: pd.DataFrame) -> pd.DataFrame:
         risk["dest_ops_prev"].to_numpy(),
         risk["dest_amount_prev"].to_numpy(),
     )
-    meta = risk[["step", "type", "amount", "oldbalanceOrg", "nameOrig", "nameDest", "isFraud", "isFlaggedFraud",
-                 "dest_ops_prev", "dest_amount_prev"]].copy()
+    meta = risk[
+        [
+            "step",
+            "type",
+            "amount",
+            "oldbalanceOrg",
+            "nameOrig",
+            "nameDest",
+            "isFraud",
+            "isFlaggedFraud",
+            "dest_ops_prev",
+            "dest_amount_prev",
+        ]
+    ].copy()
     meta["type"] = meta["type"].astype(str)
     return pd.concat([meta, X], axis=1)
 

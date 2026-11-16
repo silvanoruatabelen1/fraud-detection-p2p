@@ -6,9 +6,19 @@ from tests.conftest import DEMO
 
 
 def _rows(df):
-    return [{"step": int(r.step), "type": r.type, "amount": float(r.amount), "old_balance_orig": float(r.oldbalanceOrg),
-             "name_dest": r.nameDest, "name_orig": r.nameOrig, "label": int(r.isFraud), "sample_weight": float(r.sample_weight)}
-            for r in df.itertuples()]
+    return [
+        {
+            "step": int(r.step),
+            "type": r.type,
+            "amount": float(r.amount),
+            "old_balance_orig": float(r.oldbalanceOrg),
+            "name_dest": r.nameDest,
+            "name_orig": r.nameOrig,
+            "label": int(r.isFraud),
+            "sample_weight": float(r.sample_weight),
+        }
+        for r in df.itertuples()
+    ]
 
 
 def test_health(client):
@@ -16,12 +26,20 @@ def test_health(client):
 
 
 def test_validation_rejects_bad_input(client):
-    r = client.post("/v1/score", json={"step": 1, "type": "BITCOIN", "amount": -1, "old_balance_orig": 0, "name_dest": "C1"})
+    r = client.post(
+        "/v1/score", json={"step": 1, "type": "BITCOIN", "amount": -1, "old_balance_orig": 0, "name_dest": "C1"}
+    )
     assert r.status_code == 422
 
 
 def test_simulator_does_not_persist_by_default_flag(client):
-    body = {"step": 400, "type": "TRANSFER", "amount": 181000.0, "old_balance_orig": 181000.0, "name_dest": "C553264065"}
+    body = {
+        "step": 400,
+        "type": "TRANSFER",
+        "amount": 181000.0,
+        "old_balance_orig": 181000.0,
+        "name_dest": "C553264065",
+    }
     r = client.post("/v1/score", json=body, params={"persist": False}).json()
     assert r["tier"] == "rojo" and r["tx_id"] is None and r["latency_ms"] > 0
 
@@ -30,7 +48,9 @@ def test_training_serving_parity(client):
     """La API recalcula el historial de 168 h desde la base y debe reproducir el puntaje del entrenamiento."""
     replay = pd.read_parquet(DEMO / "replay.parquet")
     for i in range(0, len(replay), 2500):
-        assert client.post("/v1/score/batch", json={"transactions": _rows(replay.iloc[i:i + 2500])}).status_code == 200
+        assert (
+            client.post("/v1/score/batch", json={"transactions": _rows(replay.iloc[i : i + 2500])}).status_code == 200
+        )
     alerts = client.get("/v1/alerts", params={"tier": "rojo", "status": "todas", "limit": 2000}).json()
     got = pd.DataFrame(alerts)[["step", "name_orig", "name_dest", "amount", "score"]]
     exp = replay.rename(columns={"nameOrig": "name_orig", "nameDest": "name_dest"})

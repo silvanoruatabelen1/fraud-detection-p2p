@@ -14,7 +14,8 @@ log = logging.getLogger(__name__)
 metadata = sa.MetaData()
 
 transactions = sa.Table(
-    "transactions", metadata,
+    "transactions",
+    metadata,
     sa.Column("id", sa.Integer, primary_key=True, autoincrement=True),
     sa.Column("step", sa.Integer, nullable=False),
     sa.Column("day", sa.Integer, nullable=False),
@@ -35,7 +36,8 @@ sa.Index("ix_tx_dest_step", transactions.c.name_dest, transactions.c.step)
 sa.Index("ix_tx_source_day", transactions.c.source, transactions.c.day)
 
 decisions = sa.Table(
-    "decisions", metadata,
+    "decisions",
+    metadata,
     sa.Column("tx_id", sa.Integer, sa.ForeignKey("transactions.id", ondelete="CASCADE"), primary_key=True),
     sa.Column("model_version", sa.String(40), nullable=False),
     sa.Column("in_scope", sa.Boolean, nullable=False),
@@ -55,7 +57,8 @@ decisions = sa.Table(
 sa.Index("ix_dec_tier", decisions.c.tier)
 
 reviews = sa.Table(
-    "reviews", metadata,
+    "reviews",
+    metadata,
     sa.Column("tx_id", sa.Integer, sa.ForeignKey("transactions.id", ondelete="CASCADE"), primary_key=True),
     sa.Column("status", sa.String(20), nullable=False),  # fraude_confirmado | liberado
     sa.Column("analyst", sa.String(40), nullable=False, default="analista"),
@@ -76,19 +79,29 @@ def seed_history(engine: sa.Engine, demo_dir: Path, chunk: int = 20_000) -> int:
     """Carga el historial de fondo si la base está vacía. Idempotente."""
     path = Path(demo_dir) / "history_seed.parquet"
     with engine.begin() as conn:
-        already = conn.execute(sa.select(sa.func.count()).select_from(transactions)
-                               .where(transactions.c.source == "seed")).scalar_one()
+        already = conn.execute(
+            sa.select(sa.func.count()).select_from(transactions).where(transactions.c.source == "seed")
+        ).scalar_one()
     if already or not path.exists():
         return 0
     df = pd.read_parquet(path)
-    rows = pd.DataFrame({
-        "step": df["step"].astype(int), "day": day_of_step(df["step"].astype(int)), "hour": df["step"].astype(int) % 24,
-        "type": df["type"].astype(str), "amount": df["amount"], "name_orig": df["nameOrig"].astype(str),
-        "old_balance_orig": df["oldbalanceOrg"], "name_dest": df["nameDest"].astype(str),
-        "source": "seed", "label": None, "sample_weight": 1.0,
-    }).to_dict("records")
+    rows = pd.DataFrame(
+        {
+            "step": df["step"].astype(int),
+            "day": day_of_step(df["step"].astype(int)),
+            "hour": df["step"].astype(int) % 24,
+            "type": df["type"].astype(str),
+            "amount": df["amount"],
+            "name_orig": df["nameOrig"].astype(str),
+            "old_balance_orig": df["oldbalanceOrg"],
+            "name_dest": df["nameDest"].astype(str),
+            "source": "seed",
+            "label": None,
+            "sample_weight": 1.0,
+        }
+    ).to_dict("records")
     with engine.begin() as conn:
         for i in range(0, len(rows), chunk):
-            conn.execute(transactions.insert(), rows[i:i + chunk])
+            conn.execute(transactions.insert(), rows[i : i + chunk])
     log.info("Historial de fondo cargado: %s operaciones", f"{len(rows):,}")
     return len(rows)

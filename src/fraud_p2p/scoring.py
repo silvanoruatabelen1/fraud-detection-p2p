@@ -61,8 +61,11 @@ class Scorer:
         self.models = {k: joblib.load(self.dir / "models" / v["file"]) for k, v in self.metadata["artifacts"].items()}
         t = self.metadata["thresholds"]
         self.red, self.amber = float(t["red"]), float(t["amber"])
-        self.shadow_thresholds = {"challenger": t["challenger"], "challenger_adv": t["challenger_adv"],
-                                  "sentinel": t["sentinel"]}
+        self.shadow_thresholds = {
+            "challenger": t["challenger"],
+            "challenger_adv": t["challenger_adv"],
+            "sentinel": t["sentinel"],
+        }
         champion = self.models["champion"]
         scaler, lr = champion.steps[0][1], champion.steps[-1][1]
         self._mean, self._scale = scaler.mean_, scaler.scale_
@@ -85,10 +88,17 @@ class Scorer:
 
     def score_transaction(self, tx: Transaction, dest_ops_prev: int, dest_amount_prev: float) -> Decision:
         if tx.type not in RISK_TYPES:
-            return Decision(in_scope=False, tier=TIER_GREEN, action=ACTIONS[TIER_GREEN],
-                            reasons=[f"{tx.type}: tipo de operación sin fraude observado en los datos; "
-                                     "se registra para el historial de la cuenta de destino."],
-                            dest_ops_prev=dest_ops_prev, dest_amount_prev=dest_amount_prev)
+            return Decision(
+                in_scope=False,
+                tier=TIER_GREEN,
+                action=ACTIONS[TIER_GREEN],
+                reasons=[
+                    f"{tx.type}: tipo de operación sin fraude observado en los datos; "
+                    "se registra para el historial de la cuenta de destino."
+                ],
+                dest_ops_prev=dest_ops_prev,
+                dest_amount_prev=dest_amount_prev,
+            )
         X = features_for_transaction(tx, dest_ops_prev, dest_amount_prev)
         scores = self.score_batch(X)
         s = float(scores["champion"][0])
@@ -98,11 +108,20 @@ class Scorer:
         reasons = [f"{FEATURE_LABELS[FEATURES[i]]} (+{contrib[i]:.1f})" for i in order[:3] if contrib[i] > 0.5]
         if not reasons:
             reasons = ["Ningún atributo empuja el puntaje hacia el fraude."]
-        shadow = {k: {"score": float(scores[k][0]), "alert": bool(scores[k][0] >= u)}
-                  for k, u in self.shadow_thresholds.items()}
+        shadow = {
+            k: {"score": float(scores[k][0]), "alert": bool(scores[k][0] >= u)}
+            for k, u in self.shadow_thresholds.items()
+        }
         return Decision(
-            in_scope=True, tier=tier, action=ACTIONS[tier], score=s, probability=float(sigmoid(s)),
+            in_scope=True,
+            tier=tier,
+            action=ACTIONS[tier],
+            score=s,
+            probability=float(sigmoid(s)),
             contributions={FEATURES[i]: float(contrib[i]) for i in range(len(FEATURES))},
-            reasons=reasons, shadow=shadow, features={k: float(v) for k, v in X.iloc[0].items()},
-            dest_ops_prev=dest_ops_prev, dest_amount_prev=dest_amount_prev,
+            reasons=reasons,
+            shadow=shadow,
+            features={k: float(v) for k, v in X.iloc[0].items()},
+            dest_ops_prev=dest_ops_prev,
+            dest_amount_prev=dest_amount_prev,
         )
