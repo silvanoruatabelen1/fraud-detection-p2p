@@ -79,32 +79,42 @@ def hourly(df: pd.DataFrame) -> list[dict]:
 def segments(df: pd.DataFrame) -> list[dict]:
     """Experiencia del cliente: fricción por segmento (franja horaria, historial del destino y tipo)."""
     d = df[df["in_scope"]].copy()
-    d["franja"] = pd.cut(d["hour"], [-1, 5, 11, 17, 23], labels=["Madrugada (0-5 h)", "Mañana (6-11 h)",
-                                                                  "Tarde (12-17 h)", "Noche (18-23 h)"]).astype(str)
+    d["franja"] = pd.cut(d["hour"], [-1, 5, 11, 17, 23], labels=["Madrugada<br>0-5 h", "Mañana<br>6-11 h",
+                                                                  "Tarde<br>12-17 h", "Noche<br>18-23 h"])
     d["historial"] = np.where(d["dest_ops_prev"] > 0, "Destino con historial", "Destino nuevo")
     rows = []
     for dim in ("franja", "historial", "type"):
-        for val, g in d.groupby(dim):
+        for val, g in d.groupby(dim, observed=True):
             legit = g[~g["fraud"]]
             lw = legit["w"].sum()
             rows.append({"dimension": dim, "segment": str(val), "legit_operations": float(lw),
                          "amber_legit": float(legit.loc[legit["is_amber"], "w"].sum()),
                          "red_legit": float(legit.loc[legit["is_red"], "w"].sum()),
-                         "friction_rate_pct": 100 * float(legit.loc[legit["is_amber"] | legit["is_red"], "w"].sum()) / lw if lw else 0.0})
+                         "friction_rate_pct": 100 * float(legit.loc[legit["is_amber"] | legit["is_red"], "w"].sum()) / lw if lw else 0.0,
+                         # Fricción que generarían los modelos de control si decidieran (hoy corren en sombra)
+                         "control_rate_pct": 100 * float(legit.loc[legit["challenger_adv_alert"] | legit["sentinel_alert"], "w"].sum()) / lw if lw else 0.0})
     return rows
 
 
-def drift(engine: sa.Engine, reference: dict, last_n: int = 5_000) -> list[dict]:
-    q = (sa.select(decisions.c.features, decisions.c.score)
-         .join(transactions, transactions.c.id == decisions.c.tx_id)
-         .where(decisions.c.in_scope.is_(True), transactions.c.source == "replay")
-         .order_by(decisions.c.tx_id.desc()).limit(last_n))
+def drift(engine: sa.Engine, reference: dict, window_hours: int = 72) -> list[dict]:
+    """PSI de las últimas `window_hours` horas de tráfico frente a entrenamiento.
+
+    La ventana debe cubrir días completos: con menos de 24 h, los atributos horarios muestran una
+    deriva artificial. Las filas se ponderan por su peso de muestreo.
+    """
+    t = transactions
     with engine.connect() as conn:
+        last = conn.execute(sa.select(sa.func.max(t.c.step)).where(t.c.source == "replay")).scalar()
+        if last is None:
+            return []
+        q = (sa.select(decisions.c.features, decisions.c.score, t.c.sample_weight)
+             .join(t, t.c.id == decisions.c.tx_id)
+             .where(decisions.c.in_scope.is_(True), t.c.source == "replay", t.c.step > last - window_hours))
         rows = conn.execute(q).all()
     if not rows:
         return []
     X = pd.DataFrame([r[0] for r in rows])[FEATURES]
-    rep = psi_report(reference, X, np.array([r[1] for r in rows]))
+    rep = psi_report(reference, X, np.array([r[1] for r in rows]), np.array([r[2] for r in rows], dtype=float))
     rep["estado"] = rep["estado"].astype(str)
     return rep.to_dict("records")
 

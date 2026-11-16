@@ -20,9 +20,9 @@ def _edges(x: np.ndarray, bins: int = 10) -> list[float]:
     return [float(-np.inf), *qs[1:-1].tolist(), float(np.inf)]
 
 
-def _proportions(x: np.ndarray, edges: list[float]) -> list[float]:
-    counts, _ = np.histogram(x, bins=np.asarray(edges))
-    return (counts / max(counts.sum(), 1)).tolist()
+def _proportions(x: np.ndarray, edges: list[float], weights: np.ndarray | None = None) -> list[float]:
+    counts, _ = np.histogram(x, bins=np.asarray(edges), weights=weights)
+    return (counts / max(counts.sum(), 1e-12)).tolist()
 
 
 def build_reference(X: pd.DataFrame, scores: np.ndarray) -> dict:
@@ -41,16 +41,18 @@ def psi(expected: list[float], actual: list[float]) -> float:
     return float(np.sum((a - e) * np.log(a / e)))
 
 
-def psi_report(reference: dict, X: pd.DataFrame, scores: np.ndarray | None = None) -> pd.DataFrame:
+def psi_report(reference: dict, X: pd.DataFrame, scores: np.ndarray | None = None,
+               weights: np.ndarray | None = None) -> pd.DataFrame:
+    """PSI de cada atributo. `weights` repondera muestras estratificadas (p. ej., legítimas submuestreadas)."""
     rows = []
     for col in X.columns:
         if col not in reference:
             continue
         r = reference[col]
-        rows.append({"variable": col, "psi": psi(r["proportions"], _proportions(X[col].to_numpy(), r["edges"]))})
+        rows.append({"variable": col, "psi": psi(r["proportions"], _proportions(X[col].to_numpy(), r["edges"], weights))})
     if scores is not None and "__score__" in reference:
         r = reference["__score__"]
-        rows.append({"variable": "__score__", "psi": psi(r["proportions"], _proportions(np.asarray(scores), r["edges"]))})
+        rows.append({"variable": "__score__", "psi": psi(r["proportions"], _proportions(np.asarray(scores), r["edges"], weights))})
     out = pd.DataFrame(rows)
     out["estado"] = pd.cut(out["psi"], [-np.inf, 0.10, 0.25, np.inf], labels=["estable", "moderado", "relevante"])
     return out

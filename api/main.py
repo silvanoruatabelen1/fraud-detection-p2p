@@ -142,8 +142,8 @@ def kpi_segments():
 
 
 @app.get("/v1/monitoring/drift", tags=["monitoreo"])
-def monitoring_drift(last_n: int = Query(5_000, ge=100, le=50_000)):
-    return analytics.drift(state["engine"], state["scorer"].metadata["reference"], last_n)
+def monitoring_drift(window_hours: int = Query(72, ge=24, le=744)):
+    return analytics.drift(state["engine"], state["scorer"].metadata["reference"], window_hours)
 
 
 @app.get("/v1/monitoring/shadow", tags=["monitoreo"])
@@ -169,6 +169,17 @@ def whatif(review_cost: float = Query(1_500, ge=0), friction_cost: float = Query
     if "whatif" not in state:
         raise HTTPException(503, "Faltan los puntajes de validación y prueba (artifacts/eval)")
     return state["whatif"].run(CostConfig(review_cost, friction_cost, daily_capacity))
+
+
+@app.get("/v1/destinations/examples", tags=["puntuación"])
+def destination_examples(step: int = Query(400, ge=1), limit: int = Query(8, le=50)):
+    """Cuentas de destino con actividad en las 168 h previas al step, para probar el simulador."""
+    t = transactions
+    q = (sa.select(t.c.name_dest, sa.func.count().label("ops"), sa.func.sum(t.c.amount).label("amount"))
+         .where(t.c.step >= step - 168, t.c.step < step, t.c.name_dest.like("C%"))
+         .group_by(t.c.name_dest).order_by(sa.func.count().desc()).limit(limit))
+    with state["engine"].connect() as conn:
+        return [dict(r._mapping) for r in conn.execute(q)]
 
 
 @app.delete("/v1/admin/traffic", tags=["sistema"])
