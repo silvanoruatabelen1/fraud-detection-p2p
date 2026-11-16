@@ -1,0 +1,109 @@
+Escenario,Modelo,Fraudes detenidos (%),Monto protegido (%)
+Fraude como en los datos,Regresión logística (campeón),99.92850333651097,99.7368038086506
+Deja 1 centavo,Regresión logística (campeón),0.3098188751191611,0.0
+Deja 1 u.m.,Regresión logística (campeón),0.3098188751191611,0.0
+Retira el 99%,Regresión logística (campeón),0.3098188751191611,0.0
+Retira el 95%,Regresión logística (campeón),0.3098188751191611,0.0
+Retira el 90%,Regresión logística (campeón),0.3098188751191611,0.0
+Retira el 80%,Regresión logística (campeón),0.3098188751191611,0.0
+Retira el 70%,Regresión logística (campeón),0.3098188751191611,0.0
+Retira el 50%,Regresión logística (campeón),0.3098188751191611,0.0
+Retira el 30%,Regresión logística (campeón),0.3098188751191611,0.0
+Retira el 10%,Regresión logística (campeón),0.3098188751191611,0.0
+Destino con historial (cuenta intermediaria),Regresión logística (campeón),99.92850333651097,99.7368038086506
+Opera a las 14 h,Regresión logística (campeón),99.92850333651097,99.7368038086506
+Retiro en efectivo en vez de transferencia,Regresión logística (campeón),99.92850333651097,99.7368038086506
+Combinado: 90% + destino con historial + 14 h,Regresión logística (campeón),0.3098188751191611,0.0
+Fracciona en 2 transferencias,Regresión logística (campeón),100.0,50.00000000019368
+Fracciona en 3 transferencias,Regresión logística (campeón),100.0,33.33333334968849
+Fracciona en 5 transferencias,Regresión logística (campeón),100.0,19.999999980890315
+Fraude como en los datos,XGBoost (retador),99.92850333651097,99.7368038086506
+Deja 1 centavo,XGBoost (retador),0.6196377502383222,1.0835620915154205
+Deja 1 u.m.,XGBoost (retador),0.6196377502383222,1.083562504726011
+Retira el 99%,XGBoost (retador),0.5958055290753098,1.0515362777050241
+Retira el 95%,XGBoost (retador),1.0724499523355575,3.2469995607435616
+Retira el 90%,XGBoost (retador),1.0247855100095329,3.1788081545219544
+Retira el 80%,XGBoost (retador),0.9532888465204957,3.0623454236529053
+Retira el 70%,XGBoost (retador),0.8579599618684461,2.8870280394063994
+Retira el 50%,XGBoost (retador),0.3098188751191611,0.0
+Retira el 30%,XGBoost (retador),0.3098188751191611,0.0
+Retira el 10%,XGBoost (retador),0.3098188751191611,0.0
+Destino con historial (cuenta intermediaria),XGBoost (retador),99.92850333651097,99.7368038086506
+Opera a las 14 h,XGBoost (retador),99.92850333651097,99.7368038086506
+Retiro en efectivo en vez de transferencia,XGBoost (retador),99.92850333651097,99.7368038086506
+Combinado: 90% + destino con historial + 14 h,XGBoost (retador),0.3098188751191611,0.0
+Fracciona en 2 transferencias,XGBoost (retador),100.0,50.00000000019368
+Fracciona en 3 transferencias,XGBoost (retador),100.0,33.33333334968849
+Fracciona en 5 transferencias,XGBoost (retador),100.0,19.999999980890315
+Fraude como en los datos,Regla de firmas,99.92850333651097,99.7368038086506
+Deja 1 centavo,Regla de firmas,0.3098188751191611,0.0
+Deja 1 u.m.,Regla de firmas,0.3098188751191611,0.0
+Retira el 99%,Regla de firmas,0.3098188751191611,0.0
+Retira el 95%,Regla de firmas,0.3098188751191611,0.0
+Retira el 90%,Regla de firmas,0.3098188751191611,0.0
+Retira el 80%,Regla de firmas,0.3098188751191611,0.0
+Retira el 70%,Regla de firmas,0.3098188751191611,0.0
+Retira el 50%,Regla de firmas,0.3098188751191611,0.0
+Retira el 30%,Regla de firmas,0.3098188751191611,0.0
+Retira el 10%,Regla de firmas,0.3098188751191611,0.0
+Destino con historial (cuenta intermediaria),Regla de firmas,99.92850333651097,99.7368038086506
+Opera a las 14 h,Regla de firmas,99.92850333651097,99.7368038086506
+Retiro en efectivo en vez de transferencia,Regla de firmas,99.92850333651097,99.7368038086506
+Combinado: 90% + destino con historial + 14 h,Regla de firmas,0.3098188751191611,0.0
+Fracciona en 2 transferencias,Regla de firmas,100.0,50.00000000019368
+Fracciona en 3 transferencias,Regla de firmas,100.0,33.33333334968849
+Fracciona en 5 transferencias,Regla de firmas,100.0,19.999999980890315
+Fraude como en los datos,Centinela (sin firmas),80.98188751191611,98.30590461405173
+Deja 1 centavo,Centinela (sin firmas),80.98188751191611,98.56217855152842
+Deja 1 u.m.,Centinela (sin firmas),80.98188751191611,98.56218781724903
+Retira el 99%,Centinela (sin firmas),80.86272640610105,98.52814994196356
+Retira el 95%,Centinela (sin firmas),80.45757864632984,98.43741944595844
+Retira el 90%,Centinela (sin firmas),79.88560533841755,98.33946571795593
+Retira el 80%,Centinela (sin firmas),77.95519542421354,97.97998791498924
+Retira el 70%,Centinela (sin firmas),75.85795996186845,97.64986238351304
+Retira el 50%,Centinela (sin firmas),70.66253574833175,96.23418048751692
+Retira el 30%,Centinela (sin firmas),62.51191611058151,93.50012275653319
+Retira el 10%,Centinela (sin firmas),41.491897044804574,82.08960995743207
+Destino con historial (cuenta intermediaria),Centinela (sin firmas),67.8979980934223,95.86081592823079
+Opera a las 14 h,Centinela (sin firmas),59.89037178265014,94.04366625620789
+Retiro en efectivo en vez de transferencia,Centinela (sin firmas),75.04766444232602,97.72346688333512
+Combinado: 90% + destino con historial + 14 h,Centinela (sin firmas),34.127740705433744,87.11041915272939
+Fracciona en 2 transferencias,Centinela (sin firmas),71.21067683508103,96.3781385152868
+Fracciona en 3 transferencias,Centinela (sin firmas),65.30028598665396,94.37217150691328
+Fracciona en 5 transferencias,Centinela (sin firmas),59.175405147759776,91.27287523313316
+Fraude como en los datos,Regresión logística entrenada con ataques,99.92850333651097,100.00000000000003
+Deja 1 centavo,Regresión logística entrenada con ataques,82.93612964728312,97.79656989561012
+Deja 1 u.m.,Regresión logística entrenada con ataques,82.93612964728312,97.7965778315901
+Retira el 99%,Regresión logística entrenada con ataques,82.81696854146806,97.7303062484764
+Retira el 95%,Regresión logística entrenada con ataques,82.34032411820782,97.63021291375928
+Retira el 90%,Regresión logística entrenada con ataques,81.62535748331744,97.36189481285751
+Retira el 80%,Regresión logística entrenada con ataques,80.24308865586272,97.10602763527221
+Retira el 70%,Regresión logística entrenada con ataques,78.2650142993327,96.58826887800167
+Retira el 50%,Regresión logística entrenada con ataques,72.64061010486176,94.46317352905065
+Retira el 30%,Regresión logística entrenada con ataques,63.67969494756911,90.3251002856876
+Retira el 10%,Regresión logística entrenada con ataques,41.158245948522406,74.79805032549666
+Destino con historial (cuenta intermediaria),Regresión logística entrenada con ataques,99.92850333651097,100.00000000000003
+Opera a las 14 h,Regresión logística entrenada con ataques,99.66634890371783,99.99392918623582
+Retiro en efectivo en vez de transferencia,Regresión logística entrenada con ataques,99.92850333651097,100.00000000000003
+Combinado: 90% + destino con historial + 14 h,Regresión logística entrenada con ataques,31.649189704480456,81.28258202588829
+Fracciona en 2 transferencias,Regresión logística entrenada con ataques,99.95233555767398,97.23158676453605
+Fracciona en 3 transferencias,Regresión logística entrenada con ataques,99.95233555767398,94.19574985895082
+Fracciona en 5 transferencias,Regresión logística entrenada con ataques,99.976167778837,89.69935516624317
+Fraude como en los datos,XGBoost entrenado con ataques,99.976167778837,99.99392918623582
+Deja 1 centavo,XGBoost entrenado con ataques,86.79694947569114,98.8290677349492
+Deja 1 u.m.,XGBoost entrenado con ataques,86.79694947569114,98.82907419054008
+Retira el 99%,XGBoost entrenado con ataques,86.65395614871306,98.78803403396283
+Retira el 95%,XGBoost entrenado con ataques,87.17826501429933,98.8596522296694
+Retira el 90%,XGBoost entrenado con ataques,86.86844613918016,98.7796232342801
+Retira el 80%,XGBoost entrenado con ataques,86.20114394661582,98.62243846560426
+Retira el 70%,XGBoost entrenado con ataques,85.65300285986655,98.45540868744823
+Retira el 50%,XGBoost entrenado con ataques,78.57483317445187,96.71612128012556
+Retira el 30%,XGBoost entrenado con ataques,7.57864632983794,50.16015513304987
+Retira el 10%,XGBoost entrenado con ataques,1.0247855100095329,13.106442331329976
+Destino con historial (cuenta intermediaria),XGBoost entrenado con ataques,99.66634890371783,98.05702202385771
+Opera a las 14 h,XGBoost entrenado con ataques,99.976167778837,99.99392918623582
+Retiro en efectivo en vez de transferencia,XGBoost entrenado con ataques,99.976167778837,99.99392918623582
+Combinado: 90% + destino con historial + 14 h,XGBoost entrenado con ataques,39.77597712106768,90.74211106158782
+Fracciona en 2 transferencias,XGBoost entrenado con ataques,100.0,98.35806064006914
+Fracciona en 3 transferencias,XGBoost entrenado con ataques,100.0,77.49554870008095
+Fracciona en 5 transferencias,XGBoost entrenado con ataques,100.0,53.42662120402751

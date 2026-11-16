@@ -1,0 +1,6 @@
+Modelo,Fraudes a las 3 h que vacían la cuenta (%),Fraudes a las 3 h que retiran el 90% (%),Legítimas retenidas por día si todas operaran a las 3 h
+Regresión logística (campeón),99.92850333651097,0.3098188751191611,0.0
+XGBoost (retador),99.92850333651097,0.3098188751191611,0.0
+Centinela (sin firmas),95.99618684461392,95.49571020019066,2123.75
+Regresión logística entrenada con ataques,100.0,98.04575786463299,2253.3125
+XGBoost entrenado con ataques,99.976167778837,100.0,1455.3125

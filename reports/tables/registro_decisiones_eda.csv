@@ -1,0 +1,15 @@
+N°,Aspecto,Evidencia,Decisión
+1,Valores nulos,0 nulos en 6.362.620 filas.,Sin imputación ni eliminación.
+2,Duplicados,"0 exactos y 0 por clave (step, origen, destino, monto).",Se conservan todas las filas.
+3,Precisión numérica,"20,5% de los montos pierde centavos en float32.",Montos y saldos en float64; comparaciones al centavo.
+4,Montos en 0,"16 operaciones, 16 de ellas fraude.",Se conservan: son intentos sobre cuentas sin saldo.
+5,Monto de 10.000.000,287 fraudes y 2.920 legítimas en ese valor; 2.443 legítimas lo superan.,"No es un límite del sistema. Se modela 'tramo de 10 M desde cuenta con saldo suficiente', no el monto aislado."
+6,Destinos comercio (M),2.151.495 PAYMENT con saldos de destino siempre en 0; 0 fraudes.,Ceros estructurales: no se imputan; bandera dest_es_comerciante.
+7,Saldo de origen en 0,"47,4% de las legítimas y 0,50% de los fraudes de riesgo.",No se imputa; bandera emisor_sin_saldo.
+8,Saldo insuficiente,"Monto > saldo en 90,1% de las legítimas y 0,35% de los fraudes.",Bandera ex ante monto_excede_saldo; explica la aparente inconsistencia contable.
+9,Saldos posteriores,Son resultado de la operación (en fraude el saldo final es casi siempre 0).,newbalanceOrig y newbalanceDest se excluyen como predictores.
+10,Valores extremos,"La cola de Tukey reúne el 41,9% de los fraudes y el 91,8% del monto defraudado.",Se conservan; transformación log10(1 + x).
+11,Tipos sin fraude,"PAYMENT, CASH_IN y DEBIT: 0 fraudes en 3.592.211 operaciones.",Se modela solo TRANSFER y CASH_OUT; los demás tipos se conservan para construir historial.
+12,Firma de vaciamiento,"97,82% de los fraudes y 0 legítimas.",Bandera marca_vaciamiento y razón continua monto/saldo.
+13,Hora del día,Tasa de fraude 42 veces mayor de 00 a 05 h que de 12 a 17 h.,Codificación cíclica hora_sen y hora_cos.
+14,Historial del destino,"Destino con actividad previa: 36,7% en fraude y 84,9% en legítimas.","Historial causal de 168 h por destino (ventana [t − 168 h, t))."

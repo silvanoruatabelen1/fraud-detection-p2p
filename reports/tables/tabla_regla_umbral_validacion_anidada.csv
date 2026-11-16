@@ -1,0 +1,5 @@
+Origen,Regla,Umbral,Fraudes,Fraudes no detenidos,Falsos positivos,Monto no detenido (u.m.),Ahorro (%)
+"Entrena 1-6, elige en 7-9, mide en 10-12",Borde superior,5.29040103505902,842,4,0,135194.75,99.88602587631289
+"Entrena 1-6, elige en 7-9, mide en 10-12",Punto medio,-1.7809628221711744,842,2,0,134983.8299999237,99.88579754407064
+"Entrena 1-9, elige en 10-12, mide en 13-15",Borde superior,5.915971898261748,738,0,0,0.0,99.89825490480509
+"Entrena 1-9, elige en 10-12, mide en 13-15",Punto medio,-1.584103012402446,738,0,0,0.0,99.89825490480509

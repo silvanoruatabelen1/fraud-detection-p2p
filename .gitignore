@@ -1,0 +1,26 @@
+# Entornos
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# Datos pesados: se regeneran con `make data` / `make pipeline`
+data/raw/*
+data/bronze/
+data/silver/
+data/gold/
+data/processed/
+!data/raw/.gitkeep
+
+# Bases locales y secretos
+*.db
+.env
+
+# Sistema
+.DS_Store
+Thumbs.db

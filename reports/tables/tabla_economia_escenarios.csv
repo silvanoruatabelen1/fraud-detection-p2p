@@ -1,0 +1,7 @@
+Modelo,Ahorro con fraude como en los datos (%),Ahorro ante atacante del 90% (%),Alertas por día,Clientes honestos retenidos por día,Alertas en el día más cargado
+Regresión logística (campeón),99.6411,-0.0003,262.0625,0.0,320.0
+XGBoost (retador),99.6411,3.1779,262.0625,0.0,320.0
+Regla de firmas,99.6411,-0.0003,262.0625,0.0,320.0
+Centinela (sin firmas),97.7717,97.8366,400.0,187.625,977.0
+Regresión logística entrenada con ataques,99.4119,96.8238,464.375,202.3125,1101.0
+XGBoost entrenado con ataques,99.6333,98.4514,371.0,108.8125,764.0

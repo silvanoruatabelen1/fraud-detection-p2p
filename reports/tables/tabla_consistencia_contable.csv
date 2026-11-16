@@ -1,0 +1,6 @@
+,Legítimas,Fraudes
+Saldo final ≠ saldo inicial − monto,90.50791471713086,0.5479118470717156
+"Saldo final ≠ máx(saldo inicial − monto, 0)",0.4128599129098732,0.1948131011810544
+Monto mayor que el saldo inicial de origen,90.095163413458,0.35309874589066115
+Saldo final de origen igual a 0,90.09509100729998,98.05186898818945
+Saldo final de destino ≠ saldo inicial + monto,22.57613145482797,56.495799342505784

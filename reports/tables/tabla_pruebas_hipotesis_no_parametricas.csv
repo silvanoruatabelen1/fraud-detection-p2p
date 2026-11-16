@@ -1,0 +1,4 @@
+Variable,Mediana fraude,Mediana legítima,p-valor U,r biserial de rangos,Magnitud,KS D,p-valor KS,"Conclusión (α = 0,01)"
+amount,441423.44,171034.46000000002,< 1e-300,0.3667412029745143,mediana,0.36306469183313134,< 1e-300,U: Rechaza H0; KS: Rechaza H0
+oldbalanceOrg,438983.45,283.0,< 1e-300,0.8553002625300943,grande,0.6916217176458148,< 1e-300,U: Rechaza H0; KS: Rechaza H0
+oldbalanceDest,0.0,558272.99,< 1e-300,-0.5718200182923469,grande,0.5128812634343739,< 1e-300,U: Rechaza H0; KS: Rechaza H0

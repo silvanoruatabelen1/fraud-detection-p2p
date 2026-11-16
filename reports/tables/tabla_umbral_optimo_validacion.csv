@@ -1,0 +1,3 @@
+Modelo,Umbral (puntaje),Umbral (probabilidad),"Franja 99,9%: umbral mín.","Franja 99,9%: umbral máx.",Alertas/día (promedio),Alertas/día (máximo),Sensibilidad (%),Precisión (%),Ahorro (% del monto defraudado)
+Regresión logística,-1.4559445126769281,0.18908838523182034,-9.148447352518023,6.2365583271641665,246.0,250,100.0,100.0,99.89825490480509
+XGBoost,-1.31545090675354,0.21157613969818326,-6.245684623718262,3.6147828102111816,246.0,250,100.0,100.0,99.89825490480509

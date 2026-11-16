@@ -1,0 +1,7 @@
+Modelo,Rol,Hiperparámetros elegidos,Hiperparámetros fijos,Grilla explorada,PR-AUC media (CV)
+Regresión logística,Campeón,"C=0.01, cw=None","solver='newton-cholesky', max_iter=1000; escalado estándar previo","C=0.01, cw=None; C=0.1, cw=None; C=1.0, cw=None; C=10.0, cw=None; C=100.0, cw=None; C=0.01, cw=balanced; C=0.1, cw=balanced; C=1.0, cw=balanced; C=10.0, cw=balanced; C=100.0, cw=balanced",0.9980464625276603
+LDA,,"solver=svd, shrinkage=None",escalado estándar previo,"solver=svd, shrinkage=None; solver=lsqr, shrinkage=auto",0.997989122461829
+QDA,,reg=0.5,escalado estándar previo,reg=0.01; reg=0.1; reg=0.5,0.9979929725007479
+Árbol de decisión (CART),,depth=4,"min_samples_leaf=50, random_state=42",depth=4; depth=6; depth=8; depth=12,0.9978338893347599
+Random Forest,,"depth=8, leaf=100","n_estimators=100, max_samples=0.25, max_features='sqrt', random_state=42","depth=8, leaf=20; depth=8, leaf=100; depth=12, leaf=20; depth=12, leaf=100",0.9979807873010248
+XGBoost,Retador,"depth=3, lr=0.05","n_estimators=300, subsample=0.8, colsample_bytree=0.8, tree_method='hist', random_state=42","depth=3, lr=0.05; depth=3, lr=0.1; depth=5, lr=0.05; depth=5, lr=0.1",0.9980325583530272

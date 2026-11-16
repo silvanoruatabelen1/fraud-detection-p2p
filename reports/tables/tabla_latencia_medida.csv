@@ -1,0 +1,7 @@
+Componente,Microsegundos por operación
+"Regresión logística: predict_proba de la librería, 1 operación",729.7340230000001
+"Regresión logística: producto escalar y sigmoide (NumPy), 1 operación",1.71306
+"XGBoost: inplace_predict, 1 operación",88.078933
+"Regresión logística: lote de 100.000, por operación",0.07935341000120388
+"XGBoost: lote de 100.000, por operación",1.2520982799992453
+"Historial de 168 h en línea (Python puro), por operación procesada",2.191120968956153
