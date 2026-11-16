@@ -148,7 +148,7 @@ El análisis completo está en los [notebooks](notebooks) y en el [informe técn
 
 ## Créditos
 
-El análisis y el modelado nacieron como Actividad Integradora Final de la **Diplomatura en Ciencia de Datos, Inteligencia Artificial y sus Aplicaciones en Economía y Negocios** (FCE y FaMAF, Universidad Nacional de Córdoba, 2026), desarrollada por el Grupo 21: María Belén Silvano Ruata, Hector Eduardo Perez y Facundo Villena. La extensión a producto la desarrolló María Belén Silvano Ruata: paquete, API, plataforma, contenedores e integración continua.
+El análisis y el modelado nacieron como Actividad Integradora Final de la **Diplomatura en Ciencia de Datos, Inteligencia Artificial y sus Aplicaciones en Economía y Negocios** (FCE y FaMAF, Universidad Nacional de Córdoba, 2026)
 
 **Datos:** E. A. Lopez-Rojas, A. Elmir y S. Axelsson (2016). *PaySim: A financial mobile money simulator for fraud detection.* 28th European Modeling and Simulation Symposium. Dataset sintético publicado en Kaggle.
 
