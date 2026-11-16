@@ -6,7 +6,7 @@ ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=never
 WORKDIR /app
 COPY pyproject.toml uv.lock README.md ./
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-default-groups --only-group replayer --no-install-project
+    uv sync --frozen --no-default-groups --group replayer --no-install-project
 
 FROM python:3.13-slim
 RUN useradd --create-home --uid 10001 app
