@@ -60,7 +60,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="FraudDetection P2P API",
+    title="Fraud Detection P2P API",
     version=__version__,
     description="Puntuación de transferencias P2P en tiempo de autorización, cola de alertas, KPI y monitoreo.",
     lifespan=lifespan,

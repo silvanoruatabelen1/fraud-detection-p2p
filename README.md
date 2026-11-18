@@ -1,6 +1,6 @@
 # Detección de fraude en transferencias P2P
 
-[![CI](https://github.com/silvanoruatabelen1/FraudDetection/actions/workflows/ci.yml/badge.svg)](https://github.com/silvanoruatabelen1/FraudDetection/actions/workflows/ci.yml)
+[![CI](https://github.com/silvanoruatabelen1/fraud-detection-p2p/actions/workflows/ci.yml/badge.svg)](https://github.com/silvanoruatabelen1/fraud-detection-p2p/actions/workflows/ci.yml)
 ![Python 3.13](https://img.shields.io/badge/python-3.13-1B365D)
 ![Docker](https://img.shields.io/badge/docker-compose-0F766E)
 [![Licencia MIT](https://img.shields.io/badge/licencia-MIT-5C768D)](LICENSE)
@@ -80,8 +80,8 @@ Las decisiones de diseño están documentadas en [`docs/decisiones/`](docs/decis
 Con Docker no hace falta descargar el dataset: la imagen incluye los modelos entrenados y un conjunto de demostración con tráfico real del período de prueba.
 
 ```bash
-git clone https://github.com/silvanoruatabelen1/FraudDetection.git
-cd FraudDetection
+git clone https://github.com/silvanoruatabelen1/fraud-detection-p2p.git
+cd fraud-detection-p2p
 docker compose up --build
 ```
 

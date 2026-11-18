@@ -1,6 +1,6 @@
 # P2P Transfer Fraud Detection
 
-[![CI](https://github.com/silvanoruatabelen1/FraudDetection/actions/workflows/ci.yml/badge.svg)](https://github.com/silvanoruatabelen1/FraudDetection/actions/workflows/ci.yml)
+[![CI](https://github.com/silvanoruatabelen1/fraud-detection-p2p/actions/workflows/ci.yml/badge.svg)](https://github.com/silvanoruatabelen1/fraud-detection-p2p/actions/workflows/ci.yml)
 ![Python 3.13](https://img.shields.io/badge/python-3.13-1B365D)
 ![Docker](https://img.shields.io/badge/docker-compose-0F766E)
 [![MIT License](https://img.shields.io/badge/license-MIT-5C768D)](LICENSE)
@@ -40,8 +40,8 @@ Evaluated on a held-out later period: PaySim days 16–31, with 505,511 at-risk 
 ## Quick start
 
 ```bash
-git clone https://github.com/silvanoruatabelen1/FraudDetection.git
-cd FraudDetection
+git clone https://github.com/silvanoruatabelen1/fraud-detection-p2p.git
+cd fraud-detection-p2p
 docker compose up --build
 ```
 
